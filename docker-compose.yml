@@ -1,0 +1,63 @@
+version: '3.8'
+
+x-resource-limits: &common-limits
+  deploy:
+    resources:
+      limits:
+        cpus: '1.0'
+        memory: 512M
+
+services:
+  # Node.js (Fastify) - Port 3001
+  node-fastify:
+    build:
+      context: ./node-fastify
+      dockerfile: Dockerfile
+    container_name: benchmark-node
+    ports:
+      - "3001:3000"
+    <<: *common-limits
+
+  # Go (Fiber) - Port 3002
+  go-fiber:
+    build:
+      context: ./go-fiber
+      dockerfile: Dockerfile
+    container_name: benchmark-go
+    ports:
+      - "3002:3000"
+    <<: *common-limits
+
+  # Python (FastAPI) - Port 3003
+  python-fastapi:
+    build:
+      context: ./python-fastapi
+      dockerfile: Dockerfile
+    container_name: benchmark-python
+    ports:
+      - "3003:3000"
+    <<: *common-limits
+
+  # Java (Spring Boot) - Port 3004
+  java-spring:
+    build:
+      context: ./java-spring
+      dockerfile: Dockerfile
+    container_name: benchmark-java
+    ports:
+      - "3004:3000"
+    <<: *common-limits
+
+  # C# (.NET 8) - Port 3005
+  csharp-dotnet:
+    build:
+      context: ./csharp-dotnet
+      dockerfile: Dockerfile
+    container_name: benchmark-csharp
+    ports:
+      - "3005:3000"
+    <<: *common-limits
+
+networks:
+  default:
+    name: benchmark-network
