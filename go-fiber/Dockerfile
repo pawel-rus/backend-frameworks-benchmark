@@ -1,9 +1,11 @@
 FROM golang:1.22-bookworm AS builder
 WORKDIR /app
 
-RUN go mod init benchmark-go && go get github.com/gofiber/fiber/v2
+COPY go.mod main.go ./
 
-COPY main.go .
+RUN go get github.com/gofiber/fiber/v2
+RUN go mod tidy
+
 RUN go build -o main .
 
 FROM debian:bookworm-slim
