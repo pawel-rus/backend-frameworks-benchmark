@@ -22,7 +22,7 @@ public class BenchmarkApplication {
         return new StatusResponse("ok");
     }
 
-    @PostMapping("/json")
+    @PostMapping("/exceptions")
     public List<ProcessedItem> processJson(
             @RequestHeader(value = "Authorization", required = false) String authorization,
             @RequestBody List<Item> items) {

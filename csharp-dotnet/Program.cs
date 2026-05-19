@@ -6,7 +6,7 @@ var app = builder.Build();
 
 app.MapGet("/io", () => Results.Ok(new { status = "ok" }));
 
-app.MapPost("/json", ([FromHeader(Name = "Authorization")] string? authorization, [FromBody] List<Item> items) =>
+app.MapPost("/exceptions", ([FromHeader(Name = "Authorization")] string? authorization, [FromBody] List<Item> items) =>
 {
     if (authorization != "Bearer secret-token")
     {

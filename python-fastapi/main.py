@@ -27,7 +27,7 @@ async def minimal_routing():
 # ENDPOINT 2: JSON Processing & CPU/Memory Overhead Test
 # Used for Scenario 2
 # =========================================================
-@app.post("/json", response_model=List[ProcessedItem])
+@app.post("/exceptions", response_model=List[ProcessedItem])
 async def process_json(items: List[Item], authorization: str = Header(None)):
     # 1. Header verification
     if authorization != "Bearer secret-token":

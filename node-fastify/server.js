@@ -4,7 +4,7 @@ fastify.get('/io', async (request, reply) => {
     return { status: 'ok' };
 });
 
-fastify.post('/json', async (request, reply) => {
+fastify.post('/exceptions', async (request, reply) => {
     const authHeader = request.headers['authorization'];
     
     if (authHeader !== 'Bearer secret-token') {

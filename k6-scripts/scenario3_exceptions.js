@@ -19,7 +19,7 @@ const payload = JSON.stringify([
 ]);
 
 export default function () {
-    const url = `http://localhost:${PORT}/json`;
+    const url = `http://localhost:${PORT}/exceptions`;
     
     // Deciding randomly if this request should be a "normal" one or an "error" one based on ERROR_RATE
     const isError = Math.random() < ERROR_RATE;

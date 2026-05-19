@@ -22,7 +22,7 @@ func main() {
 		return c.JSON(fiber.Map{"status": "ok"})
 	})
 
-	app.Post("/json", func(c *fiber.Ctx) error {
+	app.Post("/exceptions", func(c *fiber.Ctx) error {
 		auth := c.Get("Authorization")
 		
 		if auth != "Bearer secret-token" {
