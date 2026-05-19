@@ -79,14 +79,14 @@ public class BenchmarkApplication {
      * Catches ResponseStatusException and wraps it into BAD_REQUEST HTTP response
      *
      */
-    @ExceptionHandler(Exception.class)
+    @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity<Map<String, String>> handleException(Exception ex) {
 
         Map<String, String> error = new HashMap<>();
         error.put("error", ex.getMessage());
 
         return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
+                .status(HttpStatus.UNAUTHORIZED)
                 .body(error);
     }
 }

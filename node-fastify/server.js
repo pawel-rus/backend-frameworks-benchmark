@@ -1,33 +1,71 @@
-const fastify = require('fastify')({ logger: false });
-
-fastify.get('/io', async (request, reply) => {
-    return { status: 'ok' };
+const fastify = require('fastify')({
+    logger: false
 });
 
-fastify.post('/exceptions', async (request, reply) => {
-    const authHeader = request.headers['authorization'];
-    
-    if (authHeader !== 'Bearer secret-token') {
-        const err = new Error('Unauthorized');
-        err.statusCode = 401;
-        throw err;
-    }
+/**
+ * Scenario 1
+ * Minimal routing benchmark
+ */
+fastify.get('/io', async (request, reply) => {
+    return 'OKAY';
+});
 
-    const now = Date.now();
+/**
+ * Scenario 2
+ * JSON serialization/deserialization benchmark
+ */
+fastify.post('/json', async (request, reply) => {
+
     const items = request.body;
-    
+
     const processed = items.map(item => ({
         id: item.id,
-        name: item.name,
-        processedAt: now
+        name: item.name.toUpperCase(),
+        quantity: item.quantity + 1
     }));
 
     return processed;
 });
 
-fastify.listen({ port: 3000, host: '0.0.0.0' }, (err, address) => {
-    if (err) {
+/**
+ * Scenario 3
+ * Exception handling benchmark
+ */
+fastify.post('/exceptions', async (request, reply) => {
+
+    const authorization = request.headers['authorization'];
+
+    if (authorization !== 'Bearer secret-token') {
+
+        const err = new Error(
+            'Unauthorized access to endpoint. Either no, or invalid bearer token provided'
+        );
+
+        err.statusCode = 401;
+
+        throw err;
+    }
+
+    return 'OKAY';
+});
+
+/**
+ * Start server
+ */
+const start = async () => {
+
+    try {
+
+        await fastify.listen({
+            port: 3000,
+            host: '0.0.0.0'
+        });
+
+    } catch (err) {
+
         console.error(err);
         process.exit(1);
     }
-});
+};
+
+start();

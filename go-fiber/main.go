@@ -1,50 +1,80 @@
 package main
 
 import (
-	"time"
+	"strings"
+
 	"github.com/gofiber/fiber/v2"
 )
 
+/**
+ * DTO for Scenario 2
+ */
 type Item struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
-}
-
-type ProcessedItem struct {
-	Item
-	ProcessedAt int64 `json:"processedAt"`
+	ID       int    `json:"id"`
+	Name     string `json:"name"`
+	Quantity int    `json:"quantity"`
 }
 
 func main() {
-	app := fiber.New(fiber.Config{DisableStartupMessage: true})
 
-	app.Get("/io", func(c *fiber.Ctx) error {
-		return c.JSON(fiber.Map{"status": "ok"})
+	app := fiber.New(fiber.Config{
+		DisableStartupMessage: true,
 	})
 
-	app.Post("/exceptions", func(c *fiber.Ctx) error {
-		auth := c.Get("Authorization")
-		
-		if auth != "Bearer secret-token" {
-			return fiber.NewError(fiber.StatusUnauthorized, "Unauthorized")
-		}
+	/**
+	 * Scenario 1
+	 * Minimal routing benchmark
+	 */
+	app.Get("/io", func(c *fiber.Ctx) error {
+		return c.SendString("OKAY")
+	})
+
+	/**
+	 * Scenario 2
+	 * JSON serialization/deserialization benchmark
+	 */
+	app.Post("/json", func(c *fiber.Ctx) error {
 
 		var items []Item
+
 		if err := c.BodyParser(&items); err != nil {
-			return c.Status(fiber.StatusBadRequest).SendString("Bad Request")
+			return fiber.NewError(
+				fiber.StatusBadRequest,
+				"Invalid JSON payload",
+			)
 		}
 
-		now := time.Now().UnixMilli()
-		processed := make([]ProcessedItem, len(items))
-		
+		processed := make([]Item, len(items))
+
 		for i, item := range items {
-			processed[i] = ProcessedItem{
-				Item:        item,
-				ProcessedAt: now,
+
+			processed[i] = Item{
+				ID:       item.ID,
+				Name:     strings.ToUpper(item.Name),
+				Quantity: item.Quantity + 1,
 			}
 		}
 
 		return c.JSON(processed)
+	})
+
+	/**
+	 * Scenario 3
+	 * Exception handling benchmark
+	 */
+	app.Post("/exceptions", func(c *fiber.Ctx) error {
+
+		authorization := c.Get("Authorization")
+
+		if authorization != "Bearer secret-token" {
+
+			return fiber.NewError(
+				fiber.StatusUnauthorized,
+				"Unauthorized access to endpoint. Either no, or invalid bearer token provided",
+			)
+		}
+
+		return c.SendString("OKAY")
 	})
 
 	app.Listen(":3000")

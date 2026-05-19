@@ -1,39 +1,61 @@
 using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
+
 builder.Logging.ClearProviders();
+
 var app = builder.Build();
 
-app.MapGet("/io", () => Results.Ok(new { status = "ok" }));
+/**
+ * Scenario 1
+ * Minimal routing benchmark
+ */
+app.MapGet("/io", () =>
+{
+    return Results.Text("OKAY");
+});
 
-app.MapPost("/exceptions", ([FromHeader(Name = "Authorization")] string? authorization, [FromBody] List<Item> items) =>
+/**
+ * Scenario 2
+ * JSON serialization/deserialization benchmark
+ */
+app.MapPost("/json", ([FromBody] List<Item> items) =>
+{
+    var processed = items.Select(item => new Item
+    {
+        Id = item.Id,
+        Name = item.Name.ToUpper(),
+        Quantity = item.Quantity + 1
+    }).ToList();
+
+    return Results.Ok(processed);
+});
+
+/**
+ * Scenario 3
+ * Exception handling benchmark
+ */
+app.MapPost("/exceptions",
+    ([FromHeader(Name = "Authorization")] string? authorization) =>
 {
     if (authorization != "Bearer secret-token")
     {
         return Results.Unauthorized();
     }
 
-    var now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-    
-    var processed = items.Select(item => new ProcessedItem
-    {
-        Id = item.Id,
-        Name = item.Name,
-        ProcessedAt = now
-    }).ToList();
-
-    return Results.Ok(processed);
+    return Results.Text("OKAY");
 });
 
 app.Run("http://0.0.0.0:3000");
 
+/**
+ * DTO for Scenario 2
+ */
 class Item
 {
     public int Id { get; set; }
-    public string Name { get; set; } = string.Empty;
-}
 
-class ProcessedItem : Item
-{
-    public long ProcessedAt { get; set; }
+    public string Name { get; set; } = string.Empty;
+
+    public int Quantity { get; set; }
 }
