@@ -4,8 +4,8 @@ x-resource-limits: &common-limits
   deploy:
     resources:
       limits:
-        cpus: '1.0'
-        memory: 512M
+        cpus: '2.0'
+        memory: 2048M
 
 services:
   # Node.js (Fastify) - Port 3001

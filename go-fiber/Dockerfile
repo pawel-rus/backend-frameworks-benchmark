@@ -15,6 +15,6 @@ COPY --from=builder /app/main .
 
 EXPOSE 3000
 
-ENV GOMAXPROCS=1
+ENV GOMAXPROCS=2
 
 CMD ["./main"]
