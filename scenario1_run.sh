@@ -20,8 +20,8 @@ else
   PYTHON_BIN="python3"
 fi
 
-# Run the automated python-based benchmark suite
-$PYTHON_BIN run_scenario1.py "$FRAMEWORK" "$@"
+# Run the automated python-based benchmark suite in unbuffered mode for real-time logging
+$PYTHON_BIN -u run_scenario1.py "$FRAMEWORK" "$@"
 
 # Run plotting script automatically if the required libraries are available
 echo ""

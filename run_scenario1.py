@@ -59,9 +59,13 @@ def test_framework(framework_id, runs, duration, vus_list):
     print(f" Configuration: {runs} runs x {duration} duration per test step")
     print("=" * 60)
     
-    # Initialize CSV header if not exists or rewrite
-    with open(csv_filename, "w") as f:
-        f.write("vus,run,min,avg,med,p95,p99,max,timeout_rate,rps\n")
+    # Initialize CSV header only if the file does not exist
+    file_exists = os.path.exists(csv_filename)
+    if not file_exists:
+        with open(csv_filename, "w") as f:
+            f.write("vus,run,min,avg,med,p95,p99,max,timeout_rate,rps\n")
+    else:
+        print(f"-> File '{csv_filename}' already exists. We will APPEND new measurements to it.")
         
     # Clean up existing container to ensure clean state
     print(f"-> Stopping any existing containers for {profile['container']}...")
@@ -72,7 +76,7 @@ def test_framework(framework_id, runs, duration, vus_list):
     run_command(["docker", "compose", "up", "-d", "--build", profile['service']])
     
     # Wait for container startup and stabilization
-    warmup_sec = 15
+    warmup_sec = 45
     print(f"-> Service booted. Warming up and stabilizing for {warmup_sec} seconds...")
     time.sleep(warmup_sec)
     

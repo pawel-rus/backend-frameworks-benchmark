@@ -27,21 +27,28 @@ FRAMEWORKS = {
 METRICS = {
     "p99": {
         "column": "p99",
-        "label": "99th Percentile Latency (ms)",
+        "label": "99th Percentile Latency [ms]",
         "title": "Scenario 1: 99th Percentile (Tail) Latency under Concurrency",
         "file": "plot_scenario1_p99.svg",
         "log_y": True
     },
     "p95": {
         "column": "p95",
-        "label": "95th Percentile Latency (ms)",
+        "label": "95th Percentile Latency [ms]",
         "title": "Scenario 1: 95th Percentile Latency under Concurrency",
         "file": "plot_scenario1_p95.svg",
         "log_y": True
     },
+    "avg": {
+        "column": "avg",
+        "label": "Average Latency [ms]",
+        "title": "Scenario 1: Average Latency under Concurrency",
+        "file": "plot_scenario1_avg.svg",
+        "log_y": True
+    },
     "rps": {
         "column": "rps",
-        "label": "Throughput (RPS)",
+        "label": "Throughput [RPS]",
         "title": "Scenario 1: Throughput (Requests per Second) under Concurrency",
         "file": "plot_scenario1_rps.svg",
         "log_y": False
@@ -115,7 +122,7 @@ def generate_individual_plots(data):
             
             # Plot the main mean line with markers and vertical error bars (whiskers)
             ax.errorbar(vus, mean_vals, yerr=std_vals, label=meta["name"], color=meta["color"], 
-                        fmt='o-', linewidth=2, markersize=8, markeredgecolor='white',
+                        fmt='o-', linewidth=2, markersize=6, markeredgecolor='white',
                         capsize=4, elinewidth=1.5)
             
             has_plots = True
@@ -124,28 +131,33 @@ def generate_individual_plots(data):
             plt.close(fig)
             continue
             
-        # Configure layout and styling (Linear X-axis as requested, ticks set dynamically)
-        ax.set_xlabel('Number of Concurrent Virtual Users (Linear Scale)')
+        # Configure layout and styling (Linear X-axis with rotated labels to prevent overlap)
+        ax.set_xlabel('Number of Virtual Users')
         ax.set_ylabel(config["label"])
-        ax.set_title(config["title"], pad=15, fontweight='bold')
         
         # Adjust ticks for VUs specifically so they are nice and readable
         all_vus = sorted(list(set([v for fd in data.values() for v in fd["vus"]])))
         if all_vus:
             ax.set_xticks(all_vus)
             ax.get_xaxis().set_major_formatter(plt.ScalarFormatter())
+            # Set horizontal labels cleanly (rotation=0) since there's plenty of space now
+            plt.setp(ax.get_xticklabels(), rotation=0, ha='center')
             
         if config["log_y"]:
             ax.set_yscale('log')
             ax.get_yaxis().set_major_formatter(plt.ScalarFormatter())
+            # Hide minor ticks on logarithmic Y-axis to prevent border clutter
+            ax.yaxis.set_minor_locator(plt.NullLocator())
             
-        ax.grid(True, which='both')
+        ax.grid(False)
+        ax.tick_params(axis='both', which='both', direction='out', length=6, width=1.2, colors='#333333')
         ax.legend(loc='best', frameon=True, facecolor='white', edgecolor='#e0e0e0')
         plt.tight_layout()
         
-        # Save vector graphic
+        # Save vector graphics (both SVG and PDF for LaTeX vector compilation)
         fig.savefig(config["file"], format='svg', bbox_inches='tight')
-        print(f"📈 Generated: {config['file']}")
+        fig.savefig(config["file"].replace('.svg', '.pdf'), format='pdf', bbox_inches='tight')
+        print(f"📈 Generated: {config['file']} and PDF (Vector)")
         plt.close(fig)
 
 def generate_combined_plot(data):
@@ -156,9 +168,11 @@ def generate_combined_plot(data):
     fig, axs = plt.subplots(2, 2, figsize=(18, 12))
     axs_flat = axs.flatten()
     
-    metrics_list = list(METRICS.items())
+    # Use exactly these 4 core metrics for the combined master plot to form a perfect 2x2 grid
+    combined_metrics = ["p99", "p95", "avg", "rps"]
     
-    for i, (metric_key, config) in enumerate(metrics_list):
+    for i, metric_key in enumerate(combined_metrics):
+        config = METRICS[metric_key]
         ax = axs_flat[i]
         
         for fw_id, fw_data in data.items():
@@ -169,10 +183,9 @@ def generate_combined_plot(data):
             std_vals = fw_data["std"][config["column"]].values
             
             ax.errorbar(vus, mean_vals, yerr=std_vals, label=meta["name"], color=meta["color"], 
-                        fmt='o-', linewidth=2, markersize=7, markeredgecolor='white',
+                        fmt='o-', linewidth=2, markersize=4, markeredgecolor='white',
                         capsize=4, elinewidth=1.2)
-            
-        ax.set_xlabel('Virtual Users (Linear Scale)')
+        ax.set_xlabel('Number of Virtual Users')
         ax.set_ylabel(config["label"])
         ax.set_title(config["title"], fontsize=12, fontweight='bold', pad=10)
         
@@ -181,12 +194,17 @@ def generate_combined_plot(data):
         if all_vus:
             ax.set_xticks(all_vus)
             ax.get_xaxis().set_major_formatter(plt.ScalarFormatter())
+            # Set horizontal labels cleanly (rotation=0) in subplots
+            plt.setp(ax.get_xticklabels(), rotation=0, ha='center')
             
         if config["log_y"]:
             ax.set_yscale('log')
             ax.get_yaxis().set_major_formatter(plt.ScalarFormatter())
+            # Hide minor ticks in subplots log Y-axis
+            ax.yaxis.set_minor_locator(plt.NullLocator())
             
-        ax.grid(True, which='both', linestyle='--', alpha=0.3)
+        ax.grid(False)
+        ax.tick_params(axis='both', which='both', direction='out', length=5, width=1.0, colors='#333333')
         ax.legend(loc='best', frameon=True, facecolor='white', edgecolor='#e0e0e0', fontsize=9)
         
     fig.suptitle("Scenario 1 Master Benchmark: Concurrency, Throughput, and Tail Latency Analysis", 
@@ -195,7 +213,51 @@ def generate_combined_plot(data):
     
     combined_file = "plot_scenario1_combined.svg"
     fig.savefig(combined_file, format='svg', bbox_inches='tight')
-    print(f"🏆 Generated Combined Master Plot: {combined_file}")
+    fig.savefig(combined_file.replace('.svg', '.pdf'), format='pdf', bbox_inches='tight')
+    print(f"🏆 Generated Combined Master Plot: {combined_file} and PDF (Vector)")
+    plt.close(fig)
+
+def generate_rps_vs_latency_plot(data):
+    """Generate a stunning academic Throughput vs Latency (RPS vs p99) curve plot."""
+    if not data:
+        return
+        
+    fig, ax = plt.subplots(figsize=(10, 6.5))
+    
+    for fw_id, fw_data in data.items():
+        meta = FRAMEWORKS[fw_id]
+        
+        # Extract mean and std values
+        mean_rps = fw_data["mean"]["rps"].values
+        mean_p99 = fw_data["mean"]["p99"].values
+        std_p99 = fw_data["std"]["p99"].values
+        
+        # Sort points by RPS to ensure the line is drawn beautifully from left to right
+        sorted_indices = np.argsort(mean_rps)
+        sorted_rps = mean_rps[sorted_indices]
+        sorted_p99 = mean_p99[sorted_indices]
+        sorted_std_p99 = std_p99[sorted_indices]
+        
+        # Plot using errorbar with whiskers
+        ax.errorbar(sorted_rps, sorted_p99, yerr=sorted_std_p99, label=meta["name"], color=meta["color"],
+                    fmt='o-', linewidth=2, markersize=6, markeredgecolor='white',
+                    capsize=4, elinewidth=1.5)
+                    
+    ax.set_yscale('log')
+    ax.get_yaxis().set_major_formatter(plt.ScalarFormatter())
+    # Hide minor ticks on Y-axis for rps_vs_latency plot
+    ax.yaxis.set_minor_locator(plt.NullLocator())
+    ax.set_xlabel('Throughput [RPS]')
+    ax.set_ylabel('99th Percentile Latency [ms]')
+    ax.grid(False)
+    ax.tick_params(axis='both', which='both', direction='out', length=6, width=1.2, colors='#333333')
+    ax.legend(loc='best', frameon=True, facecolor='white', edgecolor='#e0e0e0')
+    
+    plt.tight_layout()
+    filename = "plot_scenario1_rps_vs_latency.svg"
+    fig.savefig(filename, format='svg', bbox_inches='tight')
+    fig.savefig(filename.replace('.svg', '.pdf'), format='pdf', bbox_inches='tight')
+    print(f"📈 Generated Throughput-Latency curve: {filename} and PDF (Vector)")
     plt.close(fig)
 
 def main():
@@ -217,6 +279,9 @@ def main():
     
     # Generate combined 2x2 grid chart
     generate_combined_plot(data)
+    
+    # Generate Throughput-Latency curve (RPS vs p99)
+    generate_rps_vs_latency_plot(data)
     
     print("\n🎉 All publication-ready vector charts successfully generated inside the directory!")
     print("You can embed these SVG files directly into your HTML pages, reports, or LaTeX files.")
