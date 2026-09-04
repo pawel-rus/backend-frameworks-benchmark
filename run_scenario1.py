@@ -135,14 +135,14 @@ def test_framework(framework_id, runs, duration, vus_list):
                         parsed_ok = True
                         os.remove(summary_json)
                     except Exception as parse_err:
-                        print(f"     ⚠️  Warning: Failed to parse summary JSON: {parse_err}")
+                        print(f"     Warning: Failed to parse summary JSON: {parse_err}")
                 
                 if not parsed_ok:
-                    print(f"     ⚠️  Warning: k6 did not write summary JSON correctly.")
+                    print(f"     Warning: k6 did not write summary JSON correctly.")
                     if res.stderr:
                         print(f"     k6 stderr snippet: {res.stderr.strip()[:300]}")
                 
-                print(f"     📊 [RESULT] Avg Latency: {val_avg:.2f} ms | p99 (Tail): {val_p99:.2f} ms | RPS: {val_rps:.1f}/s | Timeouts: {val_timeouts:.2f}%")
+                print(f"     [RESULT] Avg Latency: {val_avg:.2f} ms | p99 (Tail): {val_p99:.2f} ms | RPS: {val_rps:.1f}/s | Timeouts: {val_timeouts:.2f}%")
                 
                 # Write to CSV
                 with open(csv_filename, "a") as f:
@@ -155,7 +155,7 @@ def test_framework(framework_id, runs, duration, vus_list):
     finally:
         print(f"\n-> Stopping container for {profile['service']}...")
         subprocess.run(["docker", "compose", "stop", profile['service']], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        print(f"✅ Framework {profile['name']} testing cycle completed.")
+        print(f"Framework {profile['name']} testing cycle completed.")
         print("-" * 60 + "\n")
 
 def main():
@@ -183,7 +183,7 @@ def main():
     else:
         target_frameworks = [args.framework]
         
-    print(f"🎬 Initiating Scenario 1 Benchmark Suite")
+    print(f"Initiating Scenario 1 Benchmark Suite")
     print(f"Target frameworks: {', '.join([FRAMEWORKS[f]['name'] for f in target_frameworks])}")
     print(f"VU Steps: {vus_list}")
     print(f"Runs per step: {args.runs}")
@@ -198,7 +198,7 @@ def main():
     total_elapsed = time.time() - start_time
     m, s = divmod(total_elapsed, 60)
     h, m = divmod(m, 60)
-    print(f"🏆 ALL TEST RUNS FINISHED SUCCESSFULLY!")
+    print(f"All test runs finished successfully.")
     print(f"Total time elapsed: {int(h)}h {int(m)}m {int(s)}s")
     print("Metrics CSV files are saved in the root directory.")
 

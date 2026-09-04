@@ -9,7 +9,7 @@ try:
     import matplotlib.pyplot as plt
 except ImportError:
     print("=" * 70)
-    print("❌ ERROR: Missing required Python packages.")
+    print("ERROR: Missing required Python packages.")
     print("To run the plotting script, please install pandas, numpy, and matplotlib:")
     print("   pip install pandas numpy matplotlib")
     print("=" * 70)
@@ -68,13 +68,13 @@ def load_data():
                 df = df.sort_values(by="ERROR_RATE")
                 data[fw_id] = df
             except Exception as e:
-                print(f"❌ Error loading {filename}: {e}")
+                print(f"Error loading {filename}: {e}")
         else:
-            print(f"⚠️  Warning: File {filename} not found. Skipping {meta['name']}.")
+            print(f"Warning: File {filename} not found. Skipping {meta['name']}.")
     return data
 
 def apply_global_styling():
-    """Apply premium visualization style matching scenario 1."""
+    """Apply visualization style matching scenario 1."""
     plt.rcParams.update({
         'font.size': 12,
         'axes.labelsize': 13,
@@ -90,7 +90,7 @@ def apply_global_styling():
     })
 
 def generate_individual_plots(data):
-    """Generate high-quality vector SVG plots for each metric individually."""
+    """Generate SVG plots for each metric individually."""
     apply_global_styling()
     
     for metric_key, config in METRICS.items():
@@ -156,18 +156,18 @@ def generate_individual_plots(data):
         
         fig.savefig(config["file"], format='svg', bbox_inches='tight')
         fig.savefig(config["file"].replace('.svg', '.pdf'), format='pdf', bbox_inches='tight')
-        print(f"📈 Generated: {config['file']} and PDF (Vector)")
+        print(f"Generated: {config['file']} and PDF (Vector)")
         plt.close(fig)
 
 def main():
     print("=" * 60)
-    print("📊 Initiating Visualization Suite for Scenario 3")
+    print("Generating plots for Scenario 3")
     print("=" * 60)
     
     data = load_data()
     
     if not data:
-        print("❌ Error: No benchmark CSV telemetry files found.")
+        print("Error: No benchmark CSV telemetry files found.")
         print("Please run the benchmark runner first: ./scenario3_run.sh all")
         sys.exit(1)
         
@@ -176,8 +176,7 @@ def main():
     # Generate individual charts
     generate_individual_plots(data)
     
-    print("\n🎉 All publication-ready vector charts successfully generated inside the directory!")
-    print("You can embed these SVG files directly into your HTML pages, reports, or LaTeX files.")
+    print("\nAll vector charts generated inside the directory.")
 
 if __name__ == "__main__":
     main()

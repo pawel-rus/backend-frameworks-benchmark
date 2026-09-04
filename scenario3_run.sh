@@ -8,7 +8,7 @@ fi
 # 1. Check if running all frameworks or just a specific one
 if [ "$1" == "all" ]; then
   TARGETS=("node" "go" "python" "java" "csharp")
-  echo "🚀 Starting massive test for all frameworks..."
+  echo "Starting benchmark suite for all frameworks..."
 else
   TARGETS=("$1")
 fi
@@ -26,7 +26,7 @@ for FRAMEWORK in "${TARGETS[@]}"; do
   esac
 
   echo -e "\n======================================================"
-  echo " 🛠️ Running tests for: $NAME"
+  echo " Running tests for: $NAME"
   echo "======================================================"
 
   CSV_FILE="results_${FRAMEWORK}.csv"
@@ -86,7 +86,7 @@ except:
           
           if [ -z "$RPS" ]; then RPS="0.0"; fi
           
-          echo -e "📊 [RESULT] ERROR_RATE $rate (Run $run) -> AVG CPU: $AVG_CPU %, RPS: $RPS, AVG LAT: $AVG_LAT ms, P99 LAT: $P99_LAT ms"
+          echo -e " [RESULT] ERROR_RATE $rate (Run $run) -> AVG CPU: $AVG_CPU %, RPS: $RPS, AVG LAT: $AVG_LAT ms, P99 LAT: $P99_LAT ms"
           
           echo "$rate,$run,$AVG_CPU,$RPS,$AVG_LAT,$P95_LAT,$P99_LAT" >> $CSV_FILE
           rm -f temp_summary.json
@@ -97,20 +97,20 @@ except:
   done
 
   rm -f cpu_temp.log
-  echo -e "\n✅ Stopping container $SERVICE..."
+  echo -e "\nStopping container $SERVICE..."
   docker-compose stop $SERVICE
 
 done
 
 # 3. GENERATE PLOTS AFTER ALL TESTS ARE COMPLETED
 echo -e "\n======================================================"
-echo "🎯 All tests completed! Time to generate plots."
+echo " All tests completed. Generating plots..."
 echo "======================================================"
 
 if command -v python3 &>/dev/null && python3 -c "import pandas, matplotlib" 2>/dev/null; then
   python3 plot_scenario3.py
 else
-  echo "⚠️ Missing libraries (pandas/matplotlib). To generate plots run:"
+  echo "Warning: Missing libraries (pandas/matplotlib). To generate plots run:"
   echo "pip install pandas matplotlib"
   echo "and then run manually: python3 plot_scenario3.py"
 fi

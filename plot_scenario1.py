@@ -9,7 +9,7 @@ try:
     import matplotlib.pyplot as plt
 except ImportError:
     print("=" * 70)
-    print("❌ ERROR: Missing required Python packages.")
+    print("ERROR: Missing required Python packages.")
     print("To run the plotting script, please install pandas, numpy, and matplotlib:")
     print("   pip install pandas numpy matplotlib")
     print("=" * 70)
@@ -69,7 +69,7 @@ def load_data():
     for fw_id, meta in FRAMEWORKS.items():
         filename = f"results_scenario1_{fw_id}.csv"
         if not os.path.exists(filename):
-            print(f"⚠️  Warning: Telemetry file '{filename}' not found. Skipping {meta['name']}.")
+            print(f"Warning: Telemetry file '{filename}' not found. Skipping {meta['name']}.")
             continue
             
         try:
@@ -89,12 +89,12 @@ def load_data():
                 "vus": mean_df.index.values
             }
         except Exception as e:
-            print(f"❌ Error loading {filename}: {e}")
+            print(f"Error loading {filename}: {e}")
             
     return aggregated_data
 
 def generate_individual_plots(data):
-    """Generate high-quality vector SVG plots for each metric individually."""
+    """Generate SVG plots for each metric individually."""
     plt.rcParams.update({
         'font.size': 12,
         'axes.labelsize': 13,
@@ -159,11 +159,11 @@ def generate_individual_plots(data):
         # Save vector graphics (both SVG and PDF for LaTeX vector compilation)
         fig.savefig(config["file"], format='svg', bbox_inches='tight')
         fig.savefig(config["file"].replace('.svg', '.pdf'), format='pdf', bbox_inches='tight')
-        print(f"📈 Generated: {config['file']} and PDF (Vector)")
+        print(f"Generated: {config['file']} and PDF (Vector)")
         plt.close(fig)
 
 def generate_combined_plot(data):
-    """Generate a stunning 2x2 combined master chart for papers or thesis reports."""
+    """Generate a 2x2 combined chart."""
     if not data:
         return
         
@@ -218,11 +218,11 @@ def generate_combined_plot(data):
     combined_file = "plot_scenario1_combined.svg"
     fig.savefig(combined_file, format='svg', bbox_inches='tight')
     fig.savefig(combined_file.replace('.svg', '.pdf'), format='pdf', bbox_inches='tight')
-    print(f"🏆 Generated Combined Master Plot: {combined_file} and PDF (Vector)")
+    print(f"Generated Combined Plot: {combined_file} and PDF (Vector)")
     plt.close(fig)
 
 def generate_rps_vs_latency_plot(data):
-    """Generate a stunning academic Throughput vs Latency (RPS vs p99) curve plot."""
+    """Generate Throughput vs Latency (RPS vs p99) curve plot."""
     if not data:
         return
         
@@ -236,7 +236,7 @@ def generate_rps_vs_latency_plot(data):
         mean_p99 = fw_data["mean"]["p99"].values
         std_p99 = fw_data["std"]["p99"].values
         
-        # Sort points by RPS to ensure the line is drawn beautifully from left to right
+        # Sort points by RPS
         sorted_indices = np.argsort(mean_rps)
         sorted_rps = mean_rps[sorted_indices]
         sorted_p99 = mean_p99[sorted_indices]
@@ -261,18 +261,18 @@ def generate_rps_vs_latency_plot(data):
     filename = "plot_scenario1_rps_vs_latency.svg"
     fig.savefig(filename, format='svg', bbox_inches='tight')
     fig.savefig(filename.replace('.svg', '.pdf'), format='pdf', bbox_inches='tight')
-    print(f"📈 Generated Throughput-Latency curve: {filename} and PDF (Vector)")
+    print(f"Generated Throughput-Latency curve: {filename} and PDF (Vector)")
     plt.close(fig)
 
 def main():
     print("=" * 60)
-    print("📊 Initiating Visualization Suite for Scenario 1")
+    print("Generating plots for Scenario 1")
     print("=" * 60)
     
     data = load_data()
     
     if not data:
-        print("❌ Error: No benchmark CSV telemetry files found.")
+        print("Error: No benchmark CSV telemetry files found.")
         print("Please run the benchmark runner first: python run_scenario1.py all")
         sys.exit(1)
         
@@ -287,8 +287,7 @@ def main():
     # Generate Throughput-Latency curve (RPS vs p99)
     generate_rps_vs_latency_plot(data)
     
-    print("\n🎉 All publication-ready vector charts successfully generated inside the directory!")
-    print("You can embed these SVG files directly into your HTML pages, reports, or LaTeX files.")
+    print("\nAll vector charts generated inside the directory.")
 
 if __name__ == "__main__":
     main()
