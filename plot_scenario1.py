@@ -148,6 +148,8 @@ def generate_individual_plots(data):
             ax.get_yaxis().set_major_formatter(plt.ScalarFormatter())
             # Hide minor ticks on logarithmic Y-axis to prevent border clutter
             ax.yaxis.set_minor_locator(plt.NullLocator())
+        elif metric_key == "rps":
+            ax.set_ylim(bottom=0)
             
         ax.grid(False)
         ax.tick_params(axis='both', which='both', direction='out', length=6, width=1.2, colors='#333333')
@@ -202,6 +204,8 @@ def generate_combined_plot(data):
             ax.get_yaxis().set_major_formatter(plt.ScalarFormatter())
             # Hide minor ticks in subplots log Y-axis
             ax.yaxis.set_minor_locator(plt.NullLocator())
+        elif metric_key == "rps":
+            ax.set_ylim(bottom=0)
             
         ax.grid(False)
         ax.tick_params(axis='both', which='both', direction='out', length=5, width=1.0, colors='#333333')
